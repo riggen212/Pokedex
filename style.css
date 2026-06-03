@@ -1,0 +1,11 @@
+:root {
+    --bgColor: #EFEDE7;
+}
+
+.creatureCard {
+    background-color: #d9d2c1;
+    width: 300px;
+    height: 150px;
+
+    border-radius: 12px;
+}
