@@ -2,10 +2,97 @@
     --bgColor: #EFEDE7;
 }
 
+* {
+    box-shadow: border-box;
+    margin: 0;
+}
+
+main {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+
+    max-width: 1440px;
+    padding: clamp(16px, calc(11.429px + 1.429vw), 32px);
+    margin: auto;
+    gap: 16px;
+}
+
+.grass {
+    background-color: rgba(52, 95, 39, 1);
+}
+
+.fire {
+    background-color: rgba(167, 50, 50, 0.829);
+}
+
+.water {
+    background-color: rgba(60, 139, 175, 0.808);
+}
+
+.bug {
+    background-color: rgba(92, 128, 81, 1);
+}
+
+.normal {
+    background-color: rgba(133, 133, 133, 1);
+}
+
+.poison {
+    background-color: rgba(102, 64, 133, 0.76);
+}
+
+.electro {
+    background-color: rgba(251, 253, 91, 1);
+}
+
+.floor {
+    background-color: rgba(109, 83, 54, 1);
+}
+
+/* small creature card */
 .creatureCard {
-    background-color: #d9d2c1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+
     width: 300px;
-    height: 150px;
+    height: 300px;
+    gap: 24px;
+    padding: 8px;
 
     border-radius: 12px;
+
+    header {
+        display: flex;
+        justify-content: space-between;
+        position: absolute;
+
+        width: 80%;
+        top: 24px;
+    }
+
+    aside {
+        position: absolute;
+        bottom: 36px;
+
+        span {
+            font-size: 18px;
+            padding: 4px 8px;;
+
+            background: rgba(255, 246, 197, 0.377);
+            border-radius: 16px;
+            box-shadow: 3px 4px 30px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(2.6px);
+            -webkit-backdrop-filter: blur(2.6px);
+            border: 2px solid rgb(0, 0, 0);
+        }
+    }
+
+    .creatureCardImage {
+        max-width: 150px;
+        max-height: 150px;
+    }
 }
