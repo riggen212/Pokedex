@@ -1,3 +1,12 @@
+@font-face {
+    font-family: "roboto";
+    src: url("./assets/fonts/roboto-v51-latin-regular.woff2") format("woff2");
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+    /* sorgt für Textanzeige während des Ladens */
+}
+
 :root {
     --bgColor: #EFEDE7;
 }
@@ -5,6 +14,21 @@
 * {
     box-shadow: border-box;
     margin: 0;
+    font-family: 'roboto';
+}
+
+button {
+    cursor: pointer;
+
+    font-family: "roboto";
+    padding: 4px 8px;
+
+    background: rgba(255, 246, 197, 0.377);
+    border-radius: 16px;
+    box-shadow: 3px 4px 30px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(2.6px);
+    -webkit-backdrop-filter: blur(2.6px);
+    border: 2px solid rgb(0, 0, 0);
 }
 
 main {
@@ -16,6 +40,10 @@ main {
     padding: clamp(16px, calc(11.429px + 1.429vw), 32px);
     margin: auto;
     gap: 16px;
+}
+
+body:has(dialog[open]) {
+    overflow: hidden;
 }
 
 .grass {
@@ -42,7 +70,7 @@ main {
     background-color: rgba(102, 64, 133, 0.76);
 }
 
-.electro {
+.electric {
     background-color: rgba(251, 253, 91, 1);
 }
 
@@ -52,6 +80,7 @@ main {
 
 /* small creature card */
 .creatureCard {
+    cursor: pointer;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -80,7 +109,8 @@ main {
 
         span {
             font-size: 18px;
-            padding: 4px 8px;;
+            padding: 4px 8px;
+            ;
 
             background: rgba(255, 246, 197, 0.377);
             border-radius: 16px;
@@ -94,5 +124,45 @@ main {
     .creatureCardImage {
         max-width: 150px;
         max-height: 150px;
+    }
+}
+
+.creatureCard:hover {
+    background-color: rgb(168, 126, 126);
+}
+
+/* styling dialog */
+dialog {
+    box-sizing: border-box;
+    border: 2px solid red;
+    border-radius: 12px;
+
+    height: 500px;
+    width: 400px;
+
+    padding: 6px;
+    margin: auto;
+
+    /* width: 300px;
+    height: 400px; */
+
+    .detailCard {
+        padding: 8px;
+        border-radius: 12px;
+
+        height: 90%;
+    }
+
+    section {
+        ul {
+            display: flex;
+            justify-content: space-between;
+
+            padding: 0;
+
+            li {
+                list-style: none;
+            }
+        }
     }
 }
