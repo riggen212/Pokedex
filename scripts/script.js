@@ -1,31 +1,54 @@
 let CREATURE_ID = 1;
-let loadDataCount = 20;
+let loadDataCount = 10;
 let currentSelectedCreature = "";
+evoStepCount = 0;
 const creatureCach = {};
+const evoChainCach = {};
 
 function init() {
     for (let i = CREATURE_ID; i <= loadDataCount; i++) {
-        loadDataFromApi(i);
+        loadCreatureDataFromApi(i);
+        loadEvoChainDataFromApi(i);
     }
     CREATURE_ID = loadDataCount + 1;
 }
 
 // load creature data from api
-async function loadDataFromApi(id) {
+async function loadCreatureDataFromApi(id) {
     try {
-        const response = await fetch(`https://pokeapi.co/api/v2/pokemon/${id}`);
-        const data = await response.json();
-        saveDataInMemory(id, data);
+        const creatureDataResponse = await fetch(`https://pokeapi.co/api/v2/pokemon/${id}`);
+        const data = await creatureDataResponse.json();
+        saveCreatureDataInMemory(id, data);
+
+        // noch auslagern
         document.getElementById('cardContainer').innerHTML += renderCreatureCard(id, creatureCach[id]);
         loadCreatureClassData(id, `creatureClass${id}`);
+        // noch auslagern
 
     } catch (error) {
         console.error("Fehler:", error);
     };
 }
 
-function saveDataInMemory(id, data) {
+async function loadEvoChainDataFromApi(id) {
+    const creatureDataResponse = await fetch(`https://pokeapi.co/api/v2/pokemon-species/${id}`);
+    const mainData = await creatureDataResponse.json();
+    const evoChainDataResponse = await fetch(`${mainData.evolution_chain.url}`);
+    const evoChain = await evoChainDataResponse.json()
+    if (evoChain.chain.evolves_to[0] !== undefined) {
+    }
+    if (evoChain.chain.evolves_to[0].evolves_to[0] !== undefined) {
+    }
+
+    saveEvoChainDataInMemory(id, evoChain);
+}
+
+function saveCreatureDataInMemory(id, data) {
     creatureCach[id] = data;
+}
+
+function saveEvoChainDataInMemory(id, data) {
+    evoChainCach[id] = data;
 }
 
 function loadCreatureClassData(id, containerRef) {
@@ -67,7 +90,7 @@ function setMainData() {
     loadMainData(getCreatureIdFromDialog());
 }
 
-function loadMainData(id) {
+function loadMainData(id) { 
     const height = creatureCach[id].height / 10;
     const weight = creatureCach[id].weight / 10;
     const baseExperience = creatureCach[id].base_experience;
@@ -104,6 +127,27 @@ function loadStatsData(id) {
     displayDetailRef.innerHTML += renderDetailStatsInformation(hp, attack, defense, specialAttack, specialDefense, speed);
 }
 
+function setEvoChainData() {
+    resetDetailData();
+    loadEvoChainData(getCreatureIdFromDialog())
+}
+
+function loadEvoChainData(id) {
+    evoStepCount = 0;
+    const base = evoChainCach[id].chain.species.name;
+    const seceondStep = evoChainCach[id].chain.evolves_to[0].species.name;
+    const thirdStep = evoChainCach[id].chain.evolves_to[0].evolves_to[0].species.name;
+
+    // noch auslagern
+    const baseId = searchCreatureIdWithName(creatureCach, `name`, base, `id`)[0];
+    const seceondStepId = searchCreatureIdWithName(creatureCach, `name`, seceondStep, `id`)[0];
+    const thirdStepId = searchCreatureIdWithName(creatureCach, `name`, thirdStep, `id`)[0];
+    // noch auslagern
+
+    let displayDetailRef = document.getElementById(`detailInformation`);
+    displayDetailRef.innerHTML += renderEvoChainInformation(baseId, seceondStepId, thirdStepId, creatureCach); 
+}
+
 function resetDetailData() {
     document.getElementById(`detailInformation`).children[0].remove();
 }
@@ -138,5 +182,30 @@ function resetDialog(parentRef) {
 
 // allgemeine funktionen
 function getCreatureIdFromDialog() {
-    return document.getElementById(`detailCard`).children[0].children[0].children[1].textContent;
+    return document.getElementById(`detailCard`).children[0].children[0].children[1].textContent.match(/\d+/g);
 }
+
+//search picture for evoChain
+function searchCreatureIdWithName(data, searchKey, name, targetKey) {
+    let results = [];
+
+    function search(data) {
+        if (data !== null && typeof data === 'object') {
+            for (const key in data) {
+                if (data.hasOwnProperty(key)) {
+                    // Wenn der gesuchte Schlüssel und Wert übereinstimmen, Zielwert speichern
+                    if (key === searchKey && data[key] === name && data[targetKey] !== undefined) {
+                        results.push(data[targetKey]);
+                    }
+                    // Rekursiver Aufruf für verschachtelte Objekte/Arrays
+                    search(data[key]);
+                }
+            }
+        }
+    }
+
+    //rekursiver Aufruf
+    search(data);
+    return results;
+}
+

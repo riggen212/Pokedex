@@ -19,29 +19,32 @@ function renderDetailCard(data) {
     return `<div class="detailCard ${data.types[0].type.name}" data-id="overlay-pokemon-name">
             <header>
                 <h2 id="detailCardName">${data.name.charAt(0).toUpperCase() + data.name.slice(1)}</h2>
-                <span id="detailCardId">${data.id}</span>
-                <button data-id="close-dialog-button" onclick="closeDialog()">close</button>
+                <span id="detailCardId">#${data.id}</span>
+                <button data-id="close-dialog-button" onclick="closeDialog()">
+                    <img class="btnDialogeClose" src="./assets/icons/btn_close.png" alt="close the detail window">
+                    <img class="btnDialogeCloseHover" src="./assets/icons/btn_close_hover.png" alt="close the detail window">
+                </button>
             </header>
             <aside>
                 <div id="detailCardClass"></div>
-                <img data-id="card-image" id="detailCardImage" src="" alt="">
+                <img data-id="card-image" class="detailCardImage" src="${data.sprites.other.dream_world.front_default}" alt="">
             </aside>
             <section>
                 <nav>
                     <ul>
                         <li onclick="setMainData()">main</li>
                         <li onclick="setStatsData()">stats</li>
-                        <li>evo chain</li>
+                        <li onclick="setEvoChainData()">evo chain</li>
                     </ul>
                 </nav>
                 <div id="detailInformation">
                 </div>
             </section>
-            <div>
-                <button data-id="prev-button" onclick="previousCreature()">
+            <div class="switchCreature">
+                <button class="btn" data-id="prev-button" onclick="previousCreature()">
                     previous
                 </button>
-                <button data-id="next-button" onclick="nextCreature()">
+                <button class="btn" data-id="next-button" onclick="nextCreature()">
                     next
                 </button>
             </div>
@@ -95,8 +98,28 @@ function renderDetailStatsInformation(hp, attack, defense, specialAttack, specia
             </tr>
             <tr>
                 <th>speed:</th>
-                <td>>${speed}</td>
+                <td>${speed}</td>
             </tr>
         </table>
+    `;
+}
+
+function renderEvoChainInformation(baseId, seceondStepId, thirdStepId, data) {
+    return `<div class="evoChain">
+                <figure>
+                    <img data-id="dialog-image" class="evoImage" src="${data[baseId].sprites.other.dream_world.front_default}" alt="">
+                    <figcaption>${data[baseId].name}</figcaption>
+                </figure>
+                <img class="evoStepImage" src="../assets/icons/next_step.png" alt="">
+                <figure>
+                    <img data-id="dialog-image" class="evoImage" src="${data[seceondStepId].sprites.other.dream_world.front_default}" alt="">
+                    <figcaption>${data[seceondStepId].name}</figcaption>
+                </figure>
+                <img class="evoStepImage" src="../assets/icons/next_step.png" alt="">
+                <figure>
+                    <img data-id="dialog-image" class="evoImage" src="${data[thirdStepId].sprites.other.dream_world.front_default}" alt="">
+                    <figcaption>${data[thirdStepId].name}</figcaption>
+                </figure>
+            </div>
     `;
 }
