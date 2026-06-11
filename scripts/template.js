@@ -104,22 +104,16 @@ function renderDetailStatsInformation(hp, attack, defense, specialAttack, specia
     `;
 }
 
-function renderEvoChainInformation(baseId, seceondStepId, thirdStepId, data) {
-    return `<div class="evoChain">
-                <figure>
-                    <img data-id="dialog-image" class="evoImage" src="${data[baseId].sprites.other.dream_world.front_default}" alt="">
-                    <figcaption>${data[baseId].name}</figcaption>
-                </figure>
-                <img class="evoStepImage" src="../assets/icons/next_step.png" alt="">
-                <figure>
-                    <img data-id="dialog-image" class="evoImage" src="${data[seceondStepId].sprites.other.dream_world.front_default}" alt="">
-                    <figcaption>${data[seceondStepId].name}</figcaption>
-                </figure>
-                <img class="evoStepImage" src="../assets/icons/next_step.png" alt="">
-                <figure>
-                    <img data-id="dialog-image" class="evoImage" src="${data[thirdStepId].sprites.other.dream_world.front_default}" alt="">
-                    <figcaption>${data[thirdStepId].name}</figcaption>
-                </figure>
+function renderEvoChainContainer() {
+    return `<div id="evoChainContainer" class="evoChain">
             </div>
+    `;
+}
+
+function renderEVoChainStep(data, id) {
+    return `<figure>
+                <img data-id="dialog-image" class="evoImage" src="${data[id].sprites.other.dream_world.front_default}" alt="">
+                <figcaption>${data[id].name}</figcaption>
+            </figure>
     `;
 }

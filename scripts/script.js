@@ -1,5 +1,5 @@
 let CREATURE_ID = 1;
-let loadDataCount = 10;
+let loadDataCount = 24;
 let currentSelectedCreature = "";
 evoStepCount = 0;
 const creatureCach = {};
@@ -90,7 +90,7 @@ function setMainData() {
     loadMainData(getCreatureIdFromDialog());
 }
 
-function loadMainData(id) { 
+function loadMainData(id) {
     const height = creatureCach[id].height / 10;
     const weight = creatureCach[id].weight / 10;
     const baseExperience = creatureCach[id].base_experience;
@@ -128,25 +128,35 @@ function loadStatsData(id) {
 }
 
 function setEvoChainData() {
+    const evoChainContainerRef = document.getElementById('detailInformation');
     resetDetailData();
-    loadEvoChainData(getCreatureIdFromDialog())
+    evoChainContainerRef.innerHTML += renderEvoChainContainer();
+    setEvoChainStep(getCreatureIdFromDialog());
 }
 
-function loadEvoChainData(id) {
-    evoStepCount = 0;
-    const base = evoChainCach[id].chain.species.name;
-    const seceondStep = evoChainCach[id].chain.evolves_to[0].species.name;
-    const thirdStep = evoChainCach[id].chain.evolves_to[0].evolves_to[0].species.name;
-
-    // noch auslagern
-    const baseId = searchCreatureIdWithName(creatureCach, `name`, base, `id`)[0];
-    const seceondStepId = searchCreatureIdWithName(creatureCach, `name`, seceondStep, `id`)[0];
-    const thirdStepId = searchCreatureIdWithName(creatureCach, `name`, thirdStep, `id`)[0];
-    // noch auslagern
-
-    let displayDetailRef = document.getElementById(`detailInformation`);
-    displayDetailRef.innerHTML += renderEvoChainInformation(baseId, seceondStepId, thirdStepId, creatureCach); 
+function setEvoChainStep(id) {
+    const evoChainContainerRef = document.getElementById('evoChainContainer');
+    if (evoChainCach[id].chain.species.name != undefined) {
+        loadEvoStepData(id, evoChainCach[id].chain.species.name);
+        evoChainContainerRef.innerHTML += `<img src="./assets/icons/next_step.png" alt="">`;
+    };
+    if (evoChainCach[id].chain.evolves_to[0] !== undefined) {
+        loadEvoStepData(id, evoChainCach[id].chain.evolves_to[0].species.name);
+        if (evoChainCach[id].chain.evolves_to[0].evolves_to[0] !== undefined) {
+            evoChainContainerRef.innerHTML += `<img src="./assets/icons/next_step.png" alt="">`;
+            loadEvoStepData(id, evoChainCach[id].chain.evolves_to[0].evolves_to[0].species.name);
+        } else {
+            return;
+        }
+    };
 }
+
+function loadEvoStepData(id, name) {
+    const evoChainContainerRef = document.getElementById('evoChainContainer');
+    id = searchCreatureIdWithName(name);
+    evoChainContainerRef.innerHTML += renderEVoChainStep(creatureCach, id)
+}
+
 
 function resetDetailData() {
     document.getElementById(`detailInformation`).children[0].remove();
@@ -186,26 +196,17 @@ function getCreatureIdFromDialog() {
 }
 
 //search picture for evoChain
-function searchCreatureIdWithName(data, searchKey, name, targetKey) {
-    let results = [];
+function searchCreatureIdWithName(name) {  
+    let result = '';
+    
+    for (let i = 1; i <= Object.keys(creatureCach).length; i++) {
+        if (creatureCach[i].forms[0].name === name) {
+            return creatureCach[i].id
+        }     
+    };
 
-    function search(data) {
-        if (data !== null && typeof data === 'object') {
-            for (const key in data) {
-                if (data.hasOwnProperty(key)) {
-                    // Wenn der gesuchte Schlüssel und Wert übereinstimmen, Zielwert speichern
-                    if (key === searchKey && data[key] === name && data[targetKey] !== undefined) {
-                        results.push(data[targetKey]);
-                    }
-                    // Rekursiver Aufruf für verschachtelte Objekte/Arrays
-                    search(data[key]);
-                }
-            }
-        }
+    if (result === '') {
+        console.log(`${name} wurde nicht gefunden!`);
     }
-
-    //rekursiver Aufruf
-    search(data);
-    return results;
 }
 
