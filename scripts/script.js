@@ -1,16 +1,16 @@
-let CREATURE_ID = 1;
-let loadDataCount = 24;
+let creatureStartId = 1;
+let loadDataUntil = 20;
 let currentSelectedCreature = "";
-evoStepCount = 0;
 const creatureCach = {};
 const evoChainCach = {};
 
-function init() {
-    for (let i = CREATURE_ID; i <= loadDataCount; i++) {
-        loadCreatureDataFromApi(i);
-        loadEvoChainDataFromApi(i);
-    }
-    CREATURE_ID = loadDataCount + 1;
+async function init() {
+    for (let i = creatureStartId; i <= loadDataUntil; i++) {
+        await loadCreatureDataFromApi(i);
+        await loadEvoChainDataFromApi(i);
+    };
+    
+    showCreatureCard();
 }
 
 // load creature data from api
@@ -19,12 +19,6 @@ async function loadCreatureDataFromApi(id) {
         const creatureDataResponse = await fetch(`https://pokeapi.co/api/v2/pokemon/${id}`);
         const data = await creatureDataResponse.json();
         saveCreatureDataInMemory(id, data);
-
-        // noch auslagern
-        document.getElementById('cardContainer').innerHTML += renderCreatureCard(id, creatureCach[id]);
-        loadCreatureClassData(id, `creatureClass${id}`);
-        // noch auslagern
-
     } catch (error) {
         console.error("Fehler:", error);
     };
@@ -51,7 +45,15 @@ function saveEvoChainDataInMemory(id, data) {
     evoChainCach[id] = data;
 }
 
-function loadCreatureClassData(id, containerRef) {
+function showCreatureCard() {
+    for (let i = creatureStartId; i<= loadDataUntil; i++) {        
+        document.getElementById('cardContainer').innerHTML += renderCreatureCard(i, creatureCach[i]);
+        getCreatureClassDataFromMemory(i, `creatureClass${i}`);
+    };
+    creatureStartId = loadDataUntil +1;
+}
+
+function getCreatureClassDataFromMemory(id, containerRef) {
     const displayClassRef = document.getElementById(containerRef);
 
     for (let i = 0; i < creatureCach[id].types.length; i++) {
@@ -59,24 +61,18 @@ function loadCreatureClassData(id, containerRef) {
     };
 }
 
-function loadCreatureData(id) {
-    const cacheKey = id;
-    // check, is data in memory storage?
-    if (creatureCach[cacheKey]) {
-        return true;
-    } else {
-        return false
-    }
-}
+function searchCreatureIdWithName(name) {  
+    let result = '';
+    
+    for (let i = 1; i <= Object.keys(creatureCach).length; i++) {
+        if (creatureCach[i].forms[0].name === name) {
+            return creatureCach[i].id
+        }     
+    };
 
-function openDialog(id) {
-    const creatureId = id.match(/\d+/g);
-    const dialogRef = document.getElementById(`detailCard`);
-    dialogRef.innerHTML += renderDetailCard(creatureCach[creatureId]);
-    loadCreatureClassData(creatureId, `detailCardClass`);
-    loadMainData(getCreatureIdFromDialog());
-    currentSelectedCreature = creatureId;
-    dialogRef.showModal();
+    if (result === '') {
+        console.log(`${name} wurde nicht gefunden!`);
+    }
 }
 
 function closeDialog() {
@@ -85,6 +81,16 @@ function closeDialog() {
     dialogRef.close();
 }
 // render dialog-detail informations
+function openDialog(id) {
+    const creatureId = id.match(/\d+/g);
+    const dialogRef = document.getElementById(`detailCard`);
+    dialogRef.innerHTML += renderDetailCard(creatureCach[creatureId]);
+    getCreatureClassDataFromMemory(creatureId, `detailCardClass`);
+    loadMainData(getCreatureIdFromDialog());
+    currentSelectedCreature = creatureId;
+    dialogRef.showModal();
+}
+
 function setMainData() {
     resetDetailData();
     loadMainData(getCreatureIdFromDialog());
@@ -157,30 +163,28 @@ function loadEvoStepData(id, name) {
     evoChainContainerRef.innerHTML += renderEVoChainStep(creatureCach, id)
 }
 
-
 function resetDetailData() {
     document.getElementById(`detailInformation`).children[0].remove();
 }
 
-// change data in dialog
 function previousCreature() {
     if (currentSelectedCreature > 1) {
         currentSelectedCreature--;
         const dialogRef = document.getElementById(`detailCard`);
         resetDialog(dialogRef);
         dialogRef.innerHTML += renderDetailCard(creatureCach[currentSelectedCreature]);
-        loadCreatureClassData(currentSelectedCreature, `detailCardClass`);
+        getCreatureClassDataFromMemory(currentSelectedCreature, `detailCardClass`);
         loadMainData(getCreatureIdFromDialog());
     };
 }
 
 function nextCreature() {
-    if (currentSelectedCreature < loadDataCount) {
+    if (currentSelectedCreature < loadDataUntil) {
         currentSelectedCreature++;
         const dialogRef = document.getElementById(`detailCard`);
         resetDialog(dialogRef);
         dialogRef.innerHTML += renderDetailCard(creatureCach[currentSelectedCreature]);
-        loadCreatureClassData(currentSelectedCreature, `detailCardClass`);
+        getCreatureClassDataFromMemory(currentSelectedCreature, `detailCardClass`);
         loadMainData(getCreatureIdFromDialog());
     };
 }
@@ -190,23 +194,8 @@ function resetDialog(parentRef) {
     cardRef.remove();
 }
 
-// allgemeine funktionen
 function getCreatureIdFromDialog() {
     return document.getElementById(`detailCard`).children[0].children[0].children[1].textContent.match(/\d+/g);
 }
 
-//search picture for evoChain
-function searchCreatureIdWithName(name) {  
-    let result = '';
-    
-    for (let i = 1; i <= Object.keys(creatureCach).length; i++) {
-        if (creatureCach[i].forms[0].name === name) {
-            return creatureCach[i].id
-        }     
-    };
-
-    if (result === '') {
-        console.log(`${name} wurde nicht gefunden!`);
-    }
-}
 
