@@ -2,55 +2,127 @@ let creatureStartId = 1;
 let loadDataUntil = 20;
 let currentSelectedCreature = "";
 const creatureCach = {};
-const evoChainCach = {};
+const evoChainCach = [];
+const nameList = [];
+const evoBaseList = [];
+const evoStepTwoList = [];
+const evoStepThreeList = [];
 
 async function init() {
     for (let i = creatureStartId; i <= loadDataUntil; i++) {
-        await loadCreatureDataFromApi(i);
-        await loadEvoChainDataFromApi(i);
+        await loadCreatureDataFromApi(i, '');
+        await loadEvoChainDataFromApi(creatureCach[i].name, i);
     };
-    
+    compareEvoDataWithCreatureMemory();
     showCreatureCard();
 }
 
-// load creature data from api
-async function loadCreatureDataFromApi(id) {
-    try {
-        const creatureDataResponse = await fetch(`https://pokeapi.co/api/v2/pokemon/${id}`);
-        const data = await creatureDataResponse.json();
-        saveCreatureDataInMemory(id, data);
-    } catch (error) {
-        console.error("Fehler:", error);
+async function loadCreatureDataFromApi(id, name) {
+    if (id !== 0) {
+
+        try {
+            const creatureDataResponse = await fetch(`https://pokeapi.co/api/v2/pokemon/${id}`);
+            if (!creatureDataResponse.ok) {
+                console.warn(`Pokémon "${name}" wurde auf dem Server nicht gefunden (Status: ${response.status}).`);
+                return null; // Suche abbrechen und Absturz verhindern
+            };
+            const data = await creatureDataResponse.json();
+            saveCreatureDataInMemory(data.id, data);
+        } catch (error) {
+            console.error("Fehler:", error);
+        };
+    } else {
+        try {
+            const creatureDataResponse = await fetch(`https://pokeapi.co/api/v2/pokemon/${name}`);
+            if (!creatureDataResponse.ok) {
+                console.warn(`Pokémon "${name}" wurde auf dem Server nicht gefunden (Status: ${creatureDataResponse.status}).`);
+                return null; // Suche abbrechen und Absturz verhindern
+            };
+            const data = await creatureDataResponse.json();
+            saveCreatureDataInMemory(data.id, data);
+            await loadEvoChainDataFromApi(creatureCach[data.id].name, data.id);
+        } catch (error) {
+            console.error("Fehler:", error);
+        };
     };
-}
-
-async function loadEvoChainDataFromApi(id) {
-    const creatureDataResponse = await fetch(`https://pokeapi.co/api/v2/pokemon-species/${id}`);
-    const mainData = await creatureDataResponse.json();
-    const evoChainDataResponse = await fetch(`${mainData.evolution_chain.url}`);
-    const evoChain = await evoChainDataResponse.json()
-    if (evoChain.chain.evolves_to[0] !== undefined) {
-    }
-    if (evoChain.chain.evolves_to[0].evolves_to[0] !== undefined) {
-    }
-
-    saveEvoChainDataInMemory(id, evoChain);
 }
 
 function saveCreatureDataInMemory(id, data) {
     creatureCach[id] = data;
 }
 
-function saveEvoChainDataInMemory(id, data) {
-    evoChainCach[id] = data;
+async function loadEvoChainDataFromApi(name, i) {
+    const creatureDataResponse = await fetch(`https://pokeapi.co/api/v2/pokemon-species/${name}`);
+    let base = '';
+    let stepTwo = '';
+    let stepThree = '';
+    if (!creatureDataResponse.ok) {
+        console.warn(`Pokémon "${name}" wurde auf dem Server nicht gefunden (Status: ${creatureDataResponse.status}).`);
+        return null; // Suche abbrechen und Absturz verhindern
+    } else {
+        const mainData = await creatureDataResponse.json();
+        const evoChainDataResponse = await fetch(`${mainData.evolution_chain.url}`);
+        const evoChain = await evoChainDataResponse.json();
+
+        if (evoChain.chain.species !== undefined) {
+            base = evoChain.chain.species.name;
+            if (evoChain.chain.evolves_to !== undefined) {
+                stepTwo = evoChain.chain.evolves_to[0].species.name;
+                if (evoChain.chain.evolves_to[0].evolves_to[0] !== undefined) {
+                    stepThree = evoChain.chain.evolves_to[0].evolves_to[0].species.name;
+                };
+            };
+        };
+    };
+    saveEvoChainDataInMemory(i, base, stepTwo, stepThree);
+}
+
+function saveEvoChainDataInMemory(i, base, stepTwo, stepThree) {
+    const data = { id: i, base: base, stepTwo: stepTwo, stepThree: stepThree };
+    evoChainCach[i] = data;
+}
+
+function compareEvoDataWithCreatureMemory() {
+    getNameListForCompare();
+    for (let i = 0; i < evoBaseList.length; i++) {
+        if (searchCreatureInMemory(evoBaseList[i]) === false && evoBaseList[i] != '') {
+            loadCreatureDataFromApi(0, evoBaseList[i]);
+        };
+    };
+    for (let i = 0; i < evoStepTwoList.length; i++) {
+        if (searchCreatureInMemory(evoStepTwoList[i]) === false && evoStepTwoList[i] != '') {
+            loadCreatureDataFromApi(0, evoStepTwoList[i]);
+        };
+    };
+    for (let i = 0; i < evoStepThreeList.length; i++) {
+        if (searchCreatureInMemory(evoStepThreeList[i]) === false && evoStepThreeList[i] != '') {
+            loadCreatureDataFromApi(0, evoStepThreeList[i]);
+        };
+    };
+}
+
+function getNameListForCompare() {
+    for (let i = 1; i <= Object.keys(creatureCach).length; i++) {
+        if (evoChainCach[i] !== undefined) {
+            if (!evoBaseList.includes(evoChainCach[i].base)) {
+                evoBaseList.push(evoChainCach[i].base)
+            };
+            if (!evoStepTwoList.includes(evoChainCach[i].stepTwo)) {
+                evoStepTwoList.push(evoChainCach[i].stepTwo)
+            };
+            if (!evoStepThreeList.includes(evoChainCach[i].stepThree)) {
+                evoStepThreeList.push(evoChainCach[i].stepThree)
+            };
+        };
+    };
 }
 
 function showCreatureCard() {
-    for (let i = creatureStartId; i<= loadDataUntil; i++) {        
+    for (let i = creatureStartId; i <= loadDataUntil; i++) {
         document.getElementById('cardContainer').innerHTML += renderCreatureCard(i, creatureCach[i]);
         getCreatureClassDataFromMemory(i, `creatureClass${i}`);
     };
-    creatureStartId = loadDataUntil +1;
+    creatureStartId = loadDataUntil + 1;
 }
 
 function getCreatureClassDataFromMemory(id, containerRef) {
@@ -61,24 +133,20 @@ function getCreatureClassDataFromMemory(id, containerRef) {
     };
 }
 
-function searchCreatureIdWithName(name) {  
-    let result = '';
-    
-    for (let i = 1; i <= Object.keys(creatureCach).length; i++) {
-        if (creatureCach[i].forms[0].name === name) {
-            return creatureCach[i].id
-        }     
-    };
-
-    if (result === '') {
-        console.log(`${name} wurde nicht gefunden!`);
-    }
-}
-
 function closeDialog() {
     const dialogRef = document.getElementById('detailCard');
     resetDialog(dialogRef)
     dialogRef.close();
+}
+
+function loadMoreCreatures() {
+    if (loadDataUntil + 20 < 1029) {
+        loadDataUntil = loadDataUntil + 20;
+        init();
+    } else {
+        loadDataUntil = 1029;
+        init();
+    }
 }
 // render dialog-detail informations
 function openDialog(id) {
@@ -118,19 +186,21 @@ function loadAbilities(id) {
 
 function setStatsData() {
     resetDetailData();
+    const displayDetailRef = document.getElementById(`detailInformation`);
+    displayDetailRef.innerHTML += renderDetailStatsInformation();
     loadStatsData(getCreatureIdFromDialog());
 }
 
 function loadStatsData(id) {
-    const hp = creatureCach[id].stats[0].base_stat;
-    const attack = creatureCach[id].stats[1].base_stat;
-    const defense = creatureCach[id].stats[2].base_stat;
-    const specialAttack = creatureCach[id].stats[3].base_stat;
-    const specialDefense = creatureCach[id].stats[4].base_stat;
-    const speed = creatureCach[id].stats[5].base_stat;
+    let tableRef = document.getElementById(`skillStats`);
+    for (let i = 0; i < creatureCach[id].stats.length; i++) {
+        const name = creatureCach[id].stats[i].stat.name;
+        const value = creatureCach[id].stats[i].base_stat;
 
-    let displayDetailRef = document.getElementById(`detailInformation`);
-    displayDetailRef.innerHTML += renderDetailStatsInformation(hp, attack, defense, specialAttack, specialDefense, speed);
+        tableRef.innerHTML += renderSkillValues(name);
+        getSkillClassValue(name, value);
+    };
+
 }
 
 function setEvoChainData() {
@@ -140,26 +210,40 @@ function setEvoChainData() {
     setEvoChainStep(getCreatureIdFromDialog());
 }
 
-function setEvoChainStep(id) {
+function getSkillClassValue(name, value) {
+    const className = document.querySelector(`.${name}`);
+    className.style.setProperty(`--${name}`, value);
+}
+
+function setEvoChainStep(i) {
     const evoChainContainerRef = document.getElementById('evoChainContainer');
-    if (evoChainCach[id].chain.species.name != undefined) {
-        loadEvoStepData(id, evoChainCach[id].chain.species.name);
+    // const id = i;
+
+    if (evoChainCach[i].base != '') {
+        showEvoStepData(getCreatureIdFromMemoryCach(evoChainCach[i].base));
         evoChainContainerRef.innerHTML += `<img src="./assets/icons/next_step.png" alt="">`;
     };
-    if (evoChainCach[id].chain.evolves_to[0] !== undefined) {
-        loadEvoStepData(id, evoChainCach[id].chain.evolves_to[0].species.name);
-        if (evoChainCach[id].chain.evolves_to[0].evolves_to[0] !== undefined) {
+    if (evoChainCach[i].stepTwo != '') {
+        showEvoStepData(getCreatureIdFromMemoryCach(evoChainCach[i].stepTwo));
+        if (evoChainCach[i].stepThree != '') {
             evoChainContainerRef.innerHTML += `<img src="./assets/icons/next_step.png" alt="">`;
-            loadEvoStepData(id, evoChainCach[id].chain.evolves_to[0].evolves_to[0].species.name);
-        } else {
-            return;
-        }
+            showEvoStepData(getCreatureIdFromMemoryCach(evoChainCach[i].stepThree));
+        };
     };
 }
 
-function loadEvoStepData(id, name) {
+function getCreatureIdFromMemoryCach(name) {
+    let index = '';
+    Object.values(creatureCach).forEach((creature, i) => {
+        if (creature?.name === name) {
+            index = creature?.id
+        }
+    });
+    return index;
+}
+
+function showEvoStepData(id) {
     const evoChainContainerRef = document.getElementById('evoChainContainer');
-    id = searchCreatureIdWithName(name);
     evoChainContainerRef.innerHTML += renderEVoChainStep(creatureCach, id)
 }
 
@@ -195,7 +279,10 @@ function resetDialog(parentRef) {
 }
 
 function getCreatureIdFromDialog() {
-    return document.getElementById(`detailCard`).children[0].children[0].children[1].textContent.match(/\d+/g);
+    return document.getElementById(`detailCardId`).textContent.match(/\d+/g)[0];
 }
 
-
+function searchCreatureInMemory(name) {
+    const nameList = Object.values(creatureCach).map(data => data?.name);
+    return nameList.includes(name);
+}

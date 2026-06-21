@@ -74,33 +74,22 @@ function renderDetailMainInformation(height, weight, baseExperience) {
     `;
 }
 
-function renderDetailStatsInformation(hp, attack, defense, specialAttack, specialDefense, speed) {
-    return `<table>
-            <tr>
-                <th>hp:</th>
-                <td>${hp}</td>
-            </tr>
-            <tr>
-                <th>attack:</th>
-                <td>${attack}</td>
-            </tr>
-            <tr>
-                <th>defense:</th>
-                <td>${defense}</td>
-            </tr>
-            <tr>
-                <th>special-attack:</th>
-                <td>${specialAttack}</td>
-            </tr>
-             <tr>
-                <th>special-defense:</th>
-                <td>${specialDefense}</td>
-            </tr>
-            <tr>
-                <th>speed:</th>
-                <td>${speed}</td>
-            </tr>
+function renderDetailStatsInformation() {
+    return `<table id="skillStats">
         </table>
+    `;
+}
+
+function renderSkillValues(name) {
+    return `<tr>
+                <th>${name}:</th>
+                <td>
+                    <div class="skillBar">
+                        <div class="skillLevel ${name}">
+                        </div>
+                    </div>
+                </td>
+            </tr>
     `;
 }
 

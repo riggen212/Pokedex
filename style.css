@@ -4,11 +4,16 @@
     font-weight: normal;
     font-style: normal;
     font-display: swap;
-    /* sorgt für Textanzeige während des Ladens */
 }
 
 :root {
     --bgColor: #EFEDE7;
+    --hp: 0;
+    --attack: 0;
+    --defense: 0;
+    --special-attack: 0;
+    --special-defense: 0;
+    --speed: 0;
 }
 
 * {
@@ -52,7 +57,7 @@ body:has(dialog[open]) {
 }
 
 .fire {
-    background-color: rgba(167, 50, 50, 0.829);
+    background-color: rgba(136, 18, 18, 0.829);
 }
 
 .water {
@@ -75,10 +80,29 @@ body:has(dialog[open]) {
     background-color: rgba(251, 253, 91, 1);
 }
 
-.floor {
+.ground {
     background-color: rgba(109, 83, 54, 1);
 }
 
+.fairy {
+    background-color: rgb(212, 106, 186);
+}
+
+.fighting {
+    background-color: rgba(247, 44, 34, 0.733);
+}
+
+.psychic {
+    background-color: rgb(248, 88, 136);
+}
+
+.rock {
+    background-color: rgb(184, 160, 56);
+}
+
+.ghost {
+    background-color: rgb(176, 145, 226);
+}
 /* small creature card */
 .creatureCard {
     cursor: pointer;
@@ -132,6 +156,20 @@ body:has(dialog[open]) {
     background-color: rgb(168, 126, 126);
 }
 
+.btnLoadMore {
+    order: 9999;
+    cursor: pointer;
+
+    font-size: 18px;
+    padding: 4px 8px;
+    border: 2px solid rgb(0, 0, 0);
+    border-radius: 16px;
+}
+
+.btnLoadMore:hover {
+    background-color: rgb(168, 126, 126);
+}
+
 /* styling dialog */
 dialog {
     box-sizing: border-box;
@@ -143,7 +181,7 @@ dialog {
 
     .detailCard {
         width: 500px;
-        height: 550px;
+        height: 580px;
         display: flex;
         flex-direction: column;
         align-items: center;
@@ -215,7 +253,6 @@ dialog {
                 border-radius: 16px;
                 box-shadow: 3px 4px 30px rgba(0, 0, 0, 0.1);
                 backdrop-filter: blur(2.6px);
-                -webkit-backdrop-filter: blur(2.6px);
                 border: 2px solid rgb(0, 0, 0);
             }
 
@@ -261,6 +298,13 @@ dialog {
             }
 
             #detailInformation {
+                display: flex;
+                justify-content: center;
+
+                table {
+                    margin-bottom: 12px;
+                }
+
                 th {
                     text-align: left;
                     padding-right: 12px;
@@ -275,6 +319,7 @@ dialog {
                     .evoStepImage {
                         height: 40px;
                     }
+
                     figure {
                         display: flex;
                         flex-direction: column;
@@ -301,4 +346,48 @@ dialog {
         }
 
     }
+}
+
+/*  */
+.skillBar {
+    background-color: rgba(224, 224, 224, 0.506);
+    border-radius: 16px;
+    width: 200px;
+}
+
+.skillLevel {
+    /* background-color: #3498db; */
+    width: 60px;
+    height: 100%;
+    border-radius: 8px;
+    padding: 0 8px;
+
+    background-color: rgba(255, 246, 197, 0.377);
+    border-radius: 16px;
+    backdrop-filter: blur(2.6px);
+    border: 2px solid rgb(0, 0, 0);
+}
+
+.hp {
+    width: calc((var(--hp) /255) *100%);
+}
+
+.attack {
+    width: calc((var(--attack) /180) *100%);
+}
+
+.defense {
+    width: calc((var(--defense) /230) *100%);
+}
+
+.special-attack {
+    width: calc((var(--special-attack) /194) *100%);
+}
+
+.special-defense {
+    width: calc((var(--special-defense) /230) *100%);
+}
+
+.speed {
+    width: calc((var(--speed) /200) *100%);
 }
