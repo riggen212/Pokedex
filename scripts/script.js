@@ -1,6 +1,7 @@
 let creatureStartId = 1;
 let loadDataUntil = 20;
 let currentSelectedCreature = "";
+let counter = 1;
 const creatureCach = {};
 const evoChainCach = [];
 const nameList = [];
@@ -8,11 +9,43 @@ const evoBaseList = [];
 const evoStepTwoList = [];
 const evoStepThreeList = [];
 
+const dialogRef = document.getElementById(`detailCard`);
+//reset the dialog when pressing esc
+dialogRef.addEventListener('cancel', (event) => {
+    dialogRef.innerHTML = '';
+});
+
+// Verhindern, dass der Nutzer den Lade-Dialog mit der ESC-Taste schließt
+const loadingDialog = document.getElementById('loading');
+const loadingText = document.getElementById('loadingText');
+loadingDialog.addEventListener('cancel', (event) => {
+    event.preventDefault();
+});
+
+function showLoadingScreen() {
+    loadingDialog.showModal();
+    loadingText.innerText = "0%";
+}
+
+function updateLoadingScreen(currentStep, creatureStartId, loadDataUntil) {
+    const prozent = ((currentStep - creatureStartId) / (loadDataUntil - creatureStartId)) * 100;
+    loadingText.innerText = `${Math.round(prozent)}%`;
+}
+
+function closeLoadingScreen() {
+    setTimeout(() => {
+        loadingDialog.close();
+    }, 400);
+}
+
 async function init() {
+    showLoadingScreen();
     for (let i = creatureStartId; i <= loadDataUntil; i++) {
+        updateLoadingScreen(i, creatureStartId, loadDataUntil);
         await loadCreatureDataFromApi(i, '');
         await loadEvoChainDataFromApi(creatureCach[i].name, i);
     };
+    closeLoadingScreen();
     compareEvoDataWithCreatureMemory();
     showCreatureCard();
 }
@@ -161,7 +194,6 @@ function loadMoreCreatures() {
 // render dialog-detail informations
 function openDialog(id) {
     const creatureId = id.match(/\d+/g);
-    const dialogRef = document.getElementById(`detailCard`);
     dialogRef.innerHTML += renderDetailCard(creatureCach[creatureId]);
     getCreatureClassDataFromMemory(creatureId, `detailCardClass`);
     loadMainData(getCreatureIdFromDialog());

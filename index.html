@@ -7,8 +7,8 @@
     <title>Pokedex</title>
 
     <link rel="stylesheet" href="./style.css">
-    <script src="./scripts/template.js"></script>
-    <script src="./scripts/script.js"></script>
+    <script src="./scripts/template.js" defer></script>
+    <script src="./scripts/script.js" defer></script>
     <link rel="shortcut icon" href="./assets/icons/favicon.png" type="image/x-icon">
 
 </head>
@@ -33,7 +33,13 @@
 
     </footer>
 
-    <dialog data-id="dialog" id="detailCard">
+    <dialog data-id="dialog" id="detailCard"></dialog>
+
+    <dialog id="loading" class="loading">
+        <div class="loadingContainer">
+            <div class="loadingSpinner"></div>
+            <div id="loadingText" class="loadingText">0%</div>
+        </div>
     </dialog>
 </body>
 
