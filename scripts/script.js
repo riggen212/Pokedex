@@ -15,11 +15,22 @@ dialogRef.addEventListener('cancel', (event) => {
     dialogRef.innerHTML = '';
 });
 
+dialogRef.addEventListener('click', (event) => {
+  if (event.target === dialogRef) {
+    dialogRef.close();
+    dialogRef.innerHTML = '';
+  };
+});
 // Verhindern, dass der Nutzer den Lade-Dialog mit der ESC-Taste schließt
 const loadingDialog = document.getElementById('loading');
 const loadingText = document.getElementById('loadingText');
 loadingDialog.addEventListener('cancel', (event) => {
     event.preventDefault();
+});
+loadingDialog.addEventListener('click', (event) => {
+  if (event.target === dialog) {
+    event.preventDefault();
+  };
 });
 
 function showLoadingScreen() {
