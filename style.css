@@ -42,10 +42,29 @@ main {
     justify-content: center;
     flex-wrap: wrap;
 
+    width: 100%;
     max-width: 1440px;
     padding: clamp(16px, calc(11.429px + 1.429vw), 32px);
     margin: auto;
     gap: 16px;
+
+    section {
+        display: flex;
+        justify-content: center;
+        order: 9999;
+        width: 100%;
+        max-width: 1440px;
+
+        .btnLoadMore {
+
+            cursor: pointer;
+
+            font-size: 18px;
+            padding: 4px 8px;
+            border: 2px solid rgb(0, 0, 0);
+            border-radius: 16px;
+        }
+    }
 }
 
 body:has(dialog[open]) {
@@ -103,6 +122,7 @@ body:has(dialog[open]) {
 .ghost {
     background-color: rgb(176, 145, 226);
 }
+
 /* small creature card */
 .creatureCard {
     cursor: pointer;
@@ -154,16 +174,6 @@ body:has(dialog[open]) {
 
 .creatureCard:hover {
     background-color: rgb(168, 126, 126);
-}
-
-.btnLoadMore {
-    order: 9999;
-    cursor: pointer;
-
-    font-size: 18px;
-    padding: 4px 8px;
-    border: 2px solid rgb(0, 0, 0);
-    border-radius: 16px;
 }
 
 .btnLoadMore:hover {

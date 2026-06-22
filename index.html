@@ -19,7 +19,14 @@
     </header>
 
     <main data-id="content" id="cardContainer">
-        <button class="btnLoadMore" onclick="loadMoreCreatures()">load more creatures</button>
+
+        <div id="progress-container" style="display: none; margin: 20px 0;">
+            <progress id="progress-bar" value="0" max="20" style="width: 100%; height: 20px;"></progress>
+            <p id="progress-text">Lade Pokémon: 0 / 20</p>
+        </div>
+        <section>
+            <button class="btnLoadMore" onclick="loadMoreCreatures()">load more creatures</button>
+        </section>
     </main>
 
     <footer>
