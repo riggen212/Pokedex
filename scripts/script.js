@@ -19,32 +19,39 @@ async function init() {
 
 async function loadCreatureDataFromApi(id, name) {
     if (id !== 0) {
-
         try {
-            const creatureDataResponse = await fetch(`https://pokeapi.co/api/v2/pokemon/${id}`);
-            if (!creatureDataResponse.ok) {
-                console.warn(`Pokémon "${name}" wurde auf dem Server nicht gefunden (Status: ${response.status}).`);
-                return null; // Suche abbrechen und Absturz verhindern
-            };
-            const data = await creatureDataResponse.json();
-            saveCreatureDataInMemory(data.id, data);
+            await loadDataBasedOnId(id, name)
         } catch (error) {
             console.error("Fehler:", error);
         };
     } else {
         try {
-            const creatureDataResponse = await fetch(`https://pokeapi.co/api/v2/pokemon/${name}`);
-            if (!creatureDataResponse.ok) {
-                console.warn(`Pokémon "${name}" wurde auf dem Server nicht gefunden (Status: ${creatureDataResponse.status}).`);
-                return null; // Suche abbrechen und Absturz verhindern
-            };
-            const data = await creatureDataResponse.json();
-            saveCreatureDataInMemory(data.id, data);
-            await loadEvoChainDataFromApi(creatureCach[data.id].name, data.id);
+            await loadDataBasedOnName(id, name);
         } catch (error) {
             console.error("Fehler:", error);
         };
     };
+}
+
+async function loadDataBasedOnId(id, name) {
+    const creatureDataResponse = await fetch(`https://pokeapi.co/api/v2/pokemon/${id}`);
+    if (!creatureDataResponse.ok) {
+        console.warn(`Pokémon "${name}" wurde auf dem Server nicht gefunden (Status: ${response.status}).`);
+        return null;
+    };
+    const data = await creatureDataResponse.json();
+    saveCreatureDataInMemory(data.id, data);
+}
+
+async function loadDataBasedOnName(id, name) {
+    const creatureDataResponse = await fetch(`https://pokeapi.co/api/v2/pokemon/${name}`);
+    if (!creatureDataResponse.ok) {
+        console.warn(`Pokémon "${name}" wurde auf dem Server nicht gefunden (Status: ${creatureDataResponse.status}).`);
+        return null;
+    };
+    const data = await creatureDataResponse.json();
+    saveCreatureDataInMemory(data.id, data);
+    await loadEvoChainDataFromApi(creatureCach[data.id].name, data.id);
 }
 
 function saveCreatureDataInMemory(id, data) {
@@ -53,31 +60,34 @@ function saveCreatureDataInMemory(id, data) {
 
 async function loadEvoChainDataFromApi(name, i) {
     const creatureDataResponse = await fetch(`https://pokeapi.co/api/v2/pokemon-species/${name}`);
+    if (!creatureDataResponse.ok) {
+        console.warn(`Pokémon "${name}" wurde auf dem Server nicht gefunden (Status: ${creatureDataResponse.status}).`);
+        return null;
+    } else {
+        await saveEvoSteps(creatureDataResponse, i)
+    };
+}
+
+async function saveEvoSteps(response, i) {
     let base = '';
     let stepTwo = '';
     let stepThree = '';
-    if (!creatureDataResponse.ok) {
-        console.warn(`Pokémon "${name}" wurde auf dem Server nicht gefunden (Status: ${creatureDataResponse.status}).`);
-        return null; // Suche abbrechen und Absturz verhindern
-    } else {
-        const mainData = await creatureDataResponse.json();
-        const evoChainDataResponse = await fetch(`${mainData.evolution_chain.url}`);
-        const evoChain = await evoChainDataResponse.json();
-
-        if (evoChain.chain.species !== undefined) {
-            base = evoChain.chain.species.name;
-            if (evoChain.chain.evolves_to !== undefined) {
-                stepTwo = evoChain.chain.evolves_to[0].species.name;
-                if (evoChain.chain.evolves_to[0].evolves_to[0] !== undefined) {
-                    stepThree = evoChain.chain.evolves_to[0].evolves_to[0].species.name;
-                };
+    const mainData = await response.json();
+    const evoChainDataResponse = await fetch(`${mainData.evolution_chain.url}`);
+    const evoChain = await evoChainDataResponse.json();
+    if (evoChain.chain.species !== undefined) {
+        base = evoChain.chain.species.name;
+        if (evoChain.chain.evolves_to[0] !== undefined) {
+            stepTwo = evoChain.chain.evolves_to[0].species.name;
+            if (evoChain.chain.evolves_to[0].evolves_to[0] !== undefined) {
+                stepThree = evoChain.chain.evolves_to[0].evolves_to[0].species.name;
             };
         };
     };
-    saveEvoChainDataInMemory(i, base, stepTwo, stepThree);
+    saveEvoDataInCach(i, base, stepTwo, stepThree);
 }
 
-function saveEvoChainDataInMemory(i, base, stepTwo, stepThree) {
+function saveEvoDataInCach(i, base, stepTwo, stepThree) {
     const data = { id: i, base: base, stepTwo: stepTwo, stepThree: stepThree };
     evoChainCach[i] = data;
 }
@@ -200,7 +210,6 @@ function loadStatsData(id) {
         tableRef.innerHTML += renderSkillValues(name);
         getSkillClassValue(name, value);
     };
-
 }
 
 function setEvoChainData() {
@@ -217,13 +226,12 @@ function getSkillClassValue(name, value) {
 
 function setEvoChainStep(i) {
     const evoChainContainerRef = document.getElementById('evoChainContainer');
-    // const id = i;
 
     if (evoChainCach[i].base != '') {
         showEvoStepData(getCreatureIdFromMemoryCach(evoChainCach[i].base));
-        evoChainContainerRef.innerHTML += `<img src="./assets/icons/next_step.png" alt="">`;
     };
     if (evoChainCach[i].stepTwo != '') {
+        evoChainContainerRef.innerHTML += `<img src="./assets/icons/next_step.png" alt="">`;
         showEvoStepData(getCreatureIdFromMemoryCach(evoChainCach[i].stepTwo));
         if (evoChainCach[i].stepThree != '') {
             evoChainContainerRef.innerHTML += `<img src="./assets/icons/next_step.png" alt="">`;
