@@ -175,36 +175,46 @@ function saveEvoDataInCach(i, base, stepTwo, stepThree) {
     evoChainCach[i] = data;
 }
 
-function compareEvoDataWithCreatureMemory() {
+async function compareEvoDataWithCreatureMemory() {
     getNameListForCompare();
-    for (let i = 0; i < evoBaseList.length; i++) {
-        if (searchCreatureInMemory(evoBaseList[i]) === false && evoBaseList[i] != '') {
-            loadCreatureDataFromApi(0, evoBaseList[i]);
+    const baseLength = evoBaseList.length;
+    for (let i = 0; i < baseLength; i++) {
+        const name = evoBaseList[i];
+        if (name && searchCreatureInMemory(name) === false) {
+            await loadCreatureDataFromApi(0, name);
         };
     };
-    for (let i = 0; i < evoStepTwoList.length; i++) {
-        if (searchCreatureInMemory(evoStepTwoList[i]) === false && evoStepTwoList[i] != '') {
-            loadCreatureDataFromApi(0, evoStepTwoList[i]);
+    const stepTwoLength = evoStepTwoList.length;
+    for (let i = 0; i < stepTwoLength; i++) {
+        const name = evoStepTwoList[i];
+        if (name && searchCreatureInMemory(name) === false) {
+            await loadCreatureDataFromApi(0, name);
         };
     };
-    for (let i = 0; i < evoStepThreeList.length; i++) {
-        if (searchCreatureInMemory(evoStepThreeList[i]) === false && evoStepThreeList[i] != '') {
-            loadCreatureDataFromApi(0, evoStepThreeList[i]);
+    const stepThreeLength = evoStepThreeList.length;
+    for (let i = 0; i < stepThreeLength; i++) {
+        const name = evoStepThreeList[i];
+        if (name && searchCreatureInMemory(name) === false) {
+            await loadCreatureDataFromApi(0, name);
         };
     };
 }
 
 function getNameListForCompare() {
-    for (let i = 1; i <= Object.keys(creatureCach).length; i++) {
-        if (evoChainCach[i] !== undefined) {
-            if (!evoBaseList.includes(evoChainCach[i].base)) {
-                evoBaseList.push(evoChainCach[i].base)
+    const cachedIds = Object.keys(evoChainCach);
+    for (let i = 0; i < cachedIds.length; i++) {
+        const id = cachedIds[i];
+        const evoData = evoChainCach[id];
+        
+        if (evoData !== undefined) {
+            if (evoData.base && !evoBaseList.includes(evoData.base)) {
+                evoBaseList.push(evoData.base);
             };
-            if (!evoStepTwoList.includes(evoChainCach[i].stepTwo)) {
-                evoStepTwoList.push(evoChainCach[i].stepTwo)
+            if (evoData.stepTwo && !evoStepTwoList.includes(evoData.stepTwo)) {
+                evoStepTwoList.push(evoData.stepTwo);
             };
-            if (!evoStepThreeList.includes(evoChainCach[i].stepThree)) {
-                evoStepThreeList.push(evoChainCach[i].stepThree)
+            if (evoData.stepThree && !evoStepThreeList.includes(evoData.stepThree)) {
+                evoStepThreeList.push(evoData.stepThree);
             };
         };
     };

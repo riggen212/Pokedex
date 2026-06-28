@@ -22,6 +22,28 @@
     font-family: 'roboto';
 }
 
+body {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+body:has(dialog[open]) {
+    overflow: hidden;
+}
+
+main {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    flex: 1 0 auto;
+    width: 100%;
+    max-width: 1440px;
+    padding: clamp(8px, calc(11.429px + 1.429vw), 32px);
+    margin: auto;
+    gap: 16px;
+}
+
 .btn {
     display: flex;
     justify-content: center;
@@ -80,19 +102,6 @@
     }
 }
 
-
-main {
-    display: flex;
-    justify-content: center;
-    flex-wrap: wrap;
-
-    width: 100%;
-    max-width: 1440px;
-    padding: clamp(8px, calc(11.429px + 1.429vw), 32px);
-    margin: auto;
-    gap: 16px;
-}
-
 section {
     display: flex;
     justify-content: center;
@@ -133,6 +142,10 @@ footer {
         width: clamp(45px, calc(36.429px + 2.679vw), 75px);
         height: clamp(45px, calc(36.429px + 2.679vw), 75px);
     }
+
+    .footerContent {
+        justify-content: center !important;
+    }
 }
 
 .contentArea {
@@ -148,11 +161,6 @@ footer {
         width: clamp(45px, calc(36.429px + 2.679vw), 75px);
         height: clamp(45px, calc(36.429px + 2.679vw), 75px);
     }
-}
-
-
-body:has(dialog[open]) {
-    overflow: hidden;
 }
 
 .grass {
@@ -207,6 +215,21 @@ body:has(dialog[open]) {
     background-color: rgb(176, 145, 226);
 }
 
+.ice {
+    background-color: rgba(175, 226, 243, 0.4);
+}
+
+.dragon {
+    background-color: rgba(90, 8, 204, 0.85);
+}
+
+.dark {
+    background-color: rgb(100, 99, 99);
+}
+
+.steel {
+    background: rgba(184, 184, 208, 0.45);
+}
 /* small creature card */
 .creatureCard {
     cursor: pointer;
@@ -354,7 +377,7 @@ dialog {
 
         aside {
             position: absolute;
-            top: 80px;
+            top: 70px;
 
             span {
                 font-size: 18px;
@@ -367,6 +390,7 @@ dialog {
             }
 
             .detailCardImage {
+                margin: 12px 0 12px 0;
                 width: 230px;
                 height: 230px;
                 max-width: clamp(150px, calc(11.429px + 1.429vw), 230px);
@@ -377,10 +401,11 @@ dialog {
         section {
             display: flex;
             flex-direction: column;
+            justify-content: flex-start;
             position: absolute;
-            top: clamp(260px, calc(11.429px + 1.429vw), 330px);
+            top: 60px;
 
-            width: 90%;
+            width: 100;
 
             ul {
                 display: flex;
@@ -553,4 +578,10 @@ dialog {
     100% {
         transform: rotate(360deg);
     }
+}
+
+@media (max-width: 470px) {
+    dialog {
+        height: 100dvh !important;
+    };
 }
