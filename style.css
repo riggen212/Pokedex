@@ -60,12 +60,62 @@ main {
             cursor: pointer;
 
             font-size: 18px;
-            padding: 4px 8px;
+            background: rgba(187, 184, 184, 0.9);
+            border-radius: 8px;
+            padding: 4px;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(6.1px);
+            -webkit-backdrop-filter: blur(6.1px);
             border: 2px solid rgb(0, 0, 0);
-            border-radius: 16px;
+            transition: transform 0.2s ease-in-out;
         }
     }
 }
+
+.head {
+    background-color: rgba(105, 118, 131, 0.842);
+    border-bottom: 2px solid black;
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+
+    .contentArea {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        max-width: 1440px;
+        margin: auto;
+        padding: 12px 24px;
+        width: 100%;
+
+        img {
+            width: 75px;
+            height: 75px;
+        }
+
+        search {
+            background: rgba(126, 64, 62, 0.9);
+            border-radius: 8px;
+            padding: 4px;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(6.1px);
+            -webkit-backdrop-filter: blur(6.1px);
+            border: 1px solid rgba(176, 147, 121, 0.3);
+
+            input {
+                background-color: rgb(255, 228, 196);
+                font-size: 14px;
+                border-radius: 4px;
+                width: 200px;
+            }
+
+            input:hover {
+                background-color: #f0f0f0;
+                border: 2px solid black;
+                box-shadow: inset 5px 5px 15px rgba(0, 0, 0, 0.3);
+            }
+        }
+    }
+}
+
 
 body:has(dialog[open]) {
     overflow: hidden;
@@ -137,6 +187,8 @@ body:has(dialog[open]) {
     gap: 24px;
     padding: 8px;
 
+    transition: transform 0.2s ease-in-out;
+    border: 2px solid transparent;
     border-radius: 12px;
 
     header {
@@ -173,11 +225,21 @@ body:has(dialog[open]) {
 }
 
 .creatureCard:hover {
-    background-color: rgb(168, 126, 126);
+    background-color: #f0f0f0;
+    border: 2px solid black;
+    box-shadow: inset 5px 5px 15px rgba(0, 0, 0, 0.3);
+
+    object-fit: cover;
+    transform: scale(1.05);
 }
 
 .btnLoadMore:hover {
-    background-color: rgb(168, 126, 126);
+    background-color: #f0f0f0;
+    border: 2px solid black;
+    box-shadow: inset 5px 5px 15px rgba(0, 0, 0, 0.3);
+
+    object-fit: cover;
+    transform: scale(1.05);
 }
 
 /* styling dialog */

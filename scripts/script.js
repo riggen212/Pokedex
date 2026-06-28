@@ -16,10 +16,10 @@ dialogRef.addEventListener('cancel', (event) => {
 });
 
 dialogRef.addEventListener('click', (event) => {
-  if (event.target === dialogRef) {
-    dialogRef.close();
-    dialogRef.innerHTML = '';
-  };
+    if (event.target === dialogRef) {
+        dialogRef.close();
+        dialogRef.innerHTML = '';
+    };
 });
 // Verhindern, dass der Nutzer den Lade-Dialog mit der ESC-Taste schließt
 const loadingDialog = document.getElementById('loading');
@@ -28,10 +28,49 @@ loadingDialog.addEventListener('cancel', (event) => {
     event.preventDefault();
 });
 loadingDialog.addEventListener('click', (event) => {
-  if (event.target === dialog) {
-    event.preventDefault();
-  };
+    if (event.target === dialog) {
+        event.preventDefault();
+    };
 });
+
+document.addEventListener('DOMContentLoaded', () => {
+    const searchInput = document.getElementById(`searchField`);
+    searchInput.addEventListener(`input`, searchCreature);
+});
+
+function searchCreature() {
+    const searchInput = document.getElementById(`searchField`);
+    let text = searchInput.value.toLowerCase().trim();
+    let items = Object.values(creatureCach).map(data => data?.name);
+
+    if (text.length >= 3) {
+        const foundedCreatures = items.filter(item => {
+            if (!item) return false;
+            const matches = item.toLowerCase().includes(text);
+            return matches;
+        });
+        showFoundedCreatrues(foundedCreatures);
+    }
+    if (text.length <3) {
+        document.getElementById(`cardContainer`).innerHTML = '';
+        showCreatureCard(1, loadDataUntil);
+    };
+}
+
+function showFoundedCreatrues(array) {
+    const containerRef = document.getElementById('cardContainer');
+    containerRef.innerHTML = '';
+    if (array.length != 0) {
+        for (let i = 0; i < array.length; i++) {
+            containerRef.innerHTML += renderCreatureCard(getCreatureIdFromMemoryCach(array[i]),
+                creatureCach[getCreatureIdFromMemoryCach(array[i])]);
+            getCreatureClassDataFromMemory(getCreatureIdFromMemoryCach(array[i]), `creatureClass${getCreatureIdFromMemoryCach(array[i])}`);
+        };
+    } else {
+        containerRef.innerHTML = `No Pokemone's founded! Please try agian`
+    };
+}
+
 
 function showLoadingScreen() {
     loadingDialog.showModal();
@@ -58,7 +97,7 @@ async function init() {
     };
     closeLoadingScreen();
     compareEvoDataWithCreatureMemory();
-    showCreatureCard();
+    showCreatureCard(creatureStartId, loadDataUntil);
 }
 
 async function loadCreatureDataFromApi(id, name) {
@@ -171,12 +210,11 @@ function getNameListForCompare() {
     };
 }
 
-function showCreatureCard() {
-    for (let i = creatureStartId; i <= loadDataUntil; i++) {
+function showCreatureCard(start, end) {
+    for (let i = start; i <= end; i++) {
         document.getElementById('cardContainer').innerHTML += renderCreatureCard(i, creatureCach[i]);
         getCreatureClassDataFromMemory(i, `creatureClass${i}`);
     };
-    creatureStartId = loadDataUntil + 1;
 }
 
 function getCreatureClassDataFromMemory(id, containerRef) {
@@ -194,6 +232,7 @@ function closeDialog() {
 }
 
 function loadMoreCreatures() {
+    creatureStartId = loadDataUntil + 1;
     if (loadDataUntil + 20 < 1029) {
         loadDataUntil = loadDataUntil + 20;
         init();
