@@ -34,8 +34,52 @@
     background: rgba(255, 246, 197, 0.377);
     border-radius: 12px;
     backdrop-filter: blur(2.6px);
-    -webkit-backdrop-filter: blur(2.6px);
 }
+
+.btn:hover {
+    background-color: #f0f0f0;
+    border: 2px solid black;
+    box-shadow: inset 5px 5px 15px rgba(0, 0, 0, 0.3);
+    transform: scale(1.05);
+}
+
+.hidden {
+    visibility: hidden !important;
+}
+
+.head {
+    background-color: rgba(105, 118, 131, 0.842);
+    border-bottom: 2px solid black;
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+    position: sticky;
+    top: 0px;
+    z-index: 1;
+
+
+
+    search {
+        background: rgba(126, 64, 62, 0.9);
+        border-radius: 8px;
+        padding: 4px;
+        box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+        backdrop-filter: blur(6.1px);
+        border: 1px solid rgba(176, 147, 121, 0.3);
+
+        input {
+            background-color: rgb(255, 228, 196);
+            font-size: 14px;
+            border-radius: 4px;
+            width: 150px;
+        }
+
+        input:hover {
+            background-color: #f0f0f0;
+            border: 2px solid black;
+            box-shadow: inset 5px 5px 15px rgba(0, 0, 0, 0.3);
+        }
+    }
+}
+
 
 main {
     display: flex;
@@ -44,75 +88,65 @@ main {
 
     width: 100%;
     max-width: 1440px;
-    padding: clamp(16px, calc(11.429px + 1.429vw), 32px);
+    padding: clamp(8px, calc(11.429px + 1.429vw), 32px);
     margin: auto;
     gap: 16px;
+}
 
-    section {
-        display: flex;
-        justify-content: center;
-        order: 9999;
+section {
+    display: flex;
+    justify-content: center;
+    margin: auto;
+    position: sticky;
+    bottom: 5px;
+    width: 100%;
+    height: 5vh;
+    max-width: 1440px;
+    padding: clamp(8px, calc(11.429px + 1.429vw), 32px);
+    padding-top: 0;
+
+    .btnLoadMore {
+        cursor: pointer;
+
         width: 100%;
-        max-width: 1440px;
+        max-width: 200px;
+        margin-top: auto;
+        text-align: center;
 
-        .btnLoadMore {
-
-            cursor: pointer;
-
-            font-size: 18px;
-            background: rgba(187, 184, 184, 0.9);
-            border-radius: 8px;
-            padding: 4px;
-            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
-            backdrop-filter: blur(6.1px);
-            -webkit-backdrop-filter: blur(6.1px);
-            border: 2px solid rgb(0, 0, 0);
-            transition: transform 0.2s ease-in-out;
-        }
+        font-size: 18px;
+        background: rgba(187, 184, 184, 0.9);
+        border-radius: 8px;
+        padding: 4px;
+        box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+        backdrop-filter: blur(6.1px);
+        border: 2px solid rgb(0, 0, 0);
+        transition: transform 0.2s ease-in-out;
     }
 }
 
-.head {
+footer {
     background-color: rgba(105, 118, 131, 0.842);
     border-bottom: 2px solid black;
     box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
 
-    .contentArea {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        max-width: 1440px;
-        margin: auto;
-        padding: 12px 24px;
-        width: 100%;
+    img {
+        width: clamp(45px, calc(36.429px + 2.679vw), 75px);
+        height: clamp(45px, calc(36.429px + 2.679vw), 75px);
+    }
+}
 
-        img {
-            width: 75px;
-            height: 75px;
-        }
+.contentArea {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 1440px;
+    margin: auto;
+    padding: 12px 24px;
+    width: 100%;
 
-        search {
-            background: rgba(126, 64, 62, 0.9);
-            border-radius: 8px;
-            padding: 4px;
-            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
-            backdrop-filter: blur(6.1px);
-            -webkit-backdrop-filter: blur(6.1px);
-            border: 1px solid rgba(176, 147, 121, 0.3);
-
-            input {
-                background-color: rgb(255, 228, 196);
-                font-size: 14px;
-                border-radius: 4px;
-                width: 200px;
-            }
-
-            input:hover {
-                background-color: #f0f0f0;
-                border: 2px solid black;
-                box-shadow: inset 5px 5px 15px rgba(0, 0, 0, 0.3);
-            }
-        }
+    img {
+        width: clamp(45px, calc(36.429px + 2.679vw), 75px);
+        height: clamp(45px, calc(36.429px + 2.679vw), 75px);
     }
 }
 
@@ -237,23 +271,25 @@ body:has(dialog[open]) {
     background-color: #f0f0f0;
     border: 2px solid black;
     box-shadow: inset 5px 5px 15px rgba(0, 0, 0, 0.3);
-
-    object-fit: cover;
     transform: scale(1.05);
 }
 
 /* styling dialog */
 dialog {
     box-sizing: border-box;
-    border: 2px solid red;
+    border: 2px solid rgb(0, 0, 0);
     border-radius: 12px;
 
     padding: 6px;
     margin: auto;
 
+    width: 500px;
+    height: 580px;
+
     .detailCard {
-        width: 500px;
-        height: 580px;
+
+        width: 100%;
+        height: 100%;
         display: flex;
         flex-direction: column;
         align-items: center;
@@ -261,6 +297,8 @@ dialog {
         padding: 8px;
         gap: 12px;
         border-radius: 12px;
+        border: 5px solid rgba(255, 255, 255, 0.3);
+        box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
 
         header {
             display: flex;
@@ -329,10 +367,10 @@ dialog {
             }
 
             .detailCardImage {
-                width: 210px;
-                height: 210px;
-                max-width: 230px;
-                max-height: 230px;
+                width: 230px;
+                height: 230px;
+                max-width: clamp(150px, calc(11.429px + 1.429vw), 230px);
+                max-height: clamp(150px, calc(11.429px + 1.429vw), 230px);
             }
         }
 
@@ -340,7 +378,7 @@ dialog {
             display: flex;
             flex-direction: column;
             position: absolute;
-            top: 330px;
+            top: clamp(260px, calc(11.429px + 1.429vw), 330px);
 
             width: 90%;
 
@@ -348,7 +386,7 @@ dialog {
                 display: flex;
                 justify-content: space-around;
                 padding: 0;
-                gap: 100px;
+                gap: clamp(10px, 2vw + 5px, 100px);
 
                 padding-bottom: 12px;
 
@@ -386,6 +424,7 @@ dialog {
                     display: flex;
                     align-items: center;
                     justify-content: center;
+                    flex-wrap: wrap;
                     gap: 12px;
 
                     .evoStepImage {
@@ -424,7 +463,7 @@ dialog {
 .skillBar {
     background-color: rgba(224, 224, 224, 0.506);
     border-radius: 16px;
-    width: 200px;
+    width: clamp(100px, 2vw + 5px, 200px);
 }
 
 .skillLevel {
@@ -471,13 +510,16 @@ dialog {
     padding: 0;
     overflow: hidden;
 
+    max-width: 200px;
+    max-height: 200px;
+
     .loadingContainer {
         position: relative;
         display: flex;
         justify-content: center;
         align-items: center;
-        width: 200px;
-        height: 200px;
+        width: 100%;
+        height: 100%;
 
         .loadingSpinner {
             position: absolute;

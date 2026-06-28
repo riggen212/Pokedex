@@ -51,7 +51,7 @@ function searchCreature() {
         });
         showFoundedCreatrues(foundedCreatures);
     }
-    if (text.length <3) {
+    if (text.length < 3) {
         document.getElementById(`cardContainer`).innerHTML = '';
         showCreatureCard(1, loadDataUntil);
     };
@@ -249,6 +249,8 @@ function openDialog(id) {
     loadMainData(getCreatureIdFromDialog());
     currentSelectedCreature = creatureId;
     dialogRef.showModal();
+    hiddenPrevBtn();
+    hiddenNextBtn();
 }
 
 function setMainData() {
@@ -350,18 +352,35 @@ function previousCreature() {
         getCreatureClassDataFromMemory(currentSelectedCreature, `detailCardClass`);
         loadMainData(getCreatureIdFromDialog());
     };
+    hiddenPrevBtn();
 }
 
 function nextCreature() {
     if (currentSelectedCreature < loadDataUntil) {
-        currentSelectedCreature++;
         const dialogRef = document.getElementById(`detailCard`);
+        currentSelectedCreature++;
         resetDialog(dialogRef);
         dialogRef.innerHTML += renderDetailCard(creatureCach[currentSelectedCreature]);
         getCreatureClassDataFromMemory(currentSelectedCreature, `detailCardClass`);
         loadMainData(getCreatureIdFromDialog());
     };
+    hiddenNextBtn();
 }
+
+function hiddenPrevBtn() {
+    const btnPref = document.getElementById(`prev`);
+    if (parseFloat(getCreatureIdFromDialog()) == 1) {
+        btnPref.classList.add('hidden');
+    };
+}
+
+function hiddenNextBtn() {
+    const btnNext = document.getElementById(`next`);
+    if (parseFloat(getCreatureIdFromDialog()) == loadDataUntil) {
+        btnNext.classList.add('hidden');
+    };;
+}
+
 
 function resetDialog(parentRef) {
     const cardRef = parentRef.children[0];

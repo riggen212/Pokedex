@@ -41,10 +41,10 @@ function renderDetailCard(data) {
                 </div>
             </section>
             <div class="switchCreature">
-                <button class="btn" data-id="prev-button" onclick="previousCreature()">
+                <button id="prev" class="btn" data-id="prev-button" onclick="previousCreature()">
                     previous
                 </button>
-                <button class="btn" data-id="next-button" onclick="nextCreature()">
+                <button id="next" class="btn" data-id="next-button" onclick="nextCreature()">
                     next
                 </button>
             </div>
