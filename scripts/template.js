@@ -32,9 +32,9 @@ function renderDetailCard(data) {
             <section>
                 <nav>
                     <ul>
-                        <li onclick="setMainData()">main</li>
-                        <li onclick="setStatsData()">stats</li>
-                        <li onclick="setEvoChainData()">evo chain</li>
+                        <li id="btnMain" class="btn active" onclick="setMainData()">main</li>
+                        <li id="btnStats" class="btn" onclick="setStatsData()">stats</li>
+                        <li id="btnEvo" class="btn" onclick="setEvoChainData()">evo chain</li>
                     </ul>
                 </nav>
                 <div id="detailInformation">

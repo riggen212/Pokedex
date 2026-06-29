@@ -9,8 +9,9 @@ const evoBaseList = [];
 const evoStepTwoList = [];
 const evoStepThreeList = [];
 
+const loadingText = document.getElementById('loadingText');
 const dialogRef = document.getElementById(`detailCard`);
-//reset the dialog when pressing esc
+
 dialogRef.addEventListener('cancel', (event) => {
     dialogRef.innerHTML = '';
 });
@@ -21,14 +22,15 @@ dialogRef.addEventListener('click', (event) => {
         dialogRef.innerHTML = '';
     };
 });
-// Verhindern, dass der Nutzer den Lade-Dialog mit der ESC-Taste schließt
+
 const loadingDialog = document.getElementById('loading');
-const loadingText = document.getElementById('loadingText');
+
 loadingDialog.addEventListener('cancel', (event) => {
     event.preventDefault();
 });
+
 loadingDialog.addEventListener('click', (event) => {
-    if (event.target === dialog) {
+    if (event.target === loadingDialog) {
         event.preventDefault();
     };
 });
@@ -42,7 +44,6 @@ function searchCreature() {
     const searchInput = document.getElementById(`searchField`);
     let text = searchInput.value.toLowerCase().trim();
     let items = Object.values(creatureCach).map(data => data?.name);
-
     if (text.length >= 3) {
         const foundedCreatures = items.filter(item => {
             if (!item) return false;
@@ -70,7 +71,6 @@ function showFoundedCreatrues(array) {
         containerRef.innerHTML = `No Pokemone's founded! Please try agian`
     };
 }
-
 
 function showLoadingScreen() {
     loadingDialog.showModal();
@@ -103,7 +103,7 @@ async function init() {
 async function loadCreatureDataFromApi(id, name) {
     if (id !== 0) {
         try {
-            await loadDataBasedOnId(id, name)
+            await loadDataBasedOnId(id, name);
         } catch (error) {
             console.error("Fehler:", error);
         };
@@ -147,7 +147,7 @@ async function loadEvoChainDataFromApi(name, i) {
         console.warn(`Pokémon "${name}" wurde auf dem Server nicht gefunden (Status: ${creatureDataResponse.status}).`);
         return null;
     } else {
-        await saveEvoSteps(creatureDataResponse, i)
+        await saveEvoSteps(creatureDataResponse, i);
     };
 }
 
@@ -177,6 +177,12 @@ function saveEvoDataInCach(i, base, stepTwo, stepThree) {
 
 async function compareEvoDataWithCreatureMemory() {
     getNameListForCompare();
+    await compareBase();
+    await compareStepTwo();
+    await compareStepThree();
+}
+
+async function compareBase() {
     const baseLength = evoBaseList.length;
     for (let i = 0; i < baseLength; i++) {
         const name = evoBaseList[i];
@@ -184,6 +190,9 @@ async function compareEvoDataWithCreatureMemory() {
             await loadCreatureDataFromApi(0, name);
         };
     };
+}
+
+async function compareStepTwo() {
     const stepTwoLength = evoStepTwoList.length;
     for (let i = 0; i < stepTwoLength; i++) {
         const name = evoStepTwoList[i];
@@ -191,6 +200,9 @@ async function compareEvoDataWithCreatureMemory() {
             await loadCreatureDataFromApi(0, name);
         };
     };
+}
+
+async function compareStepThree() {
     const stepThreeLength = evoStepThreeList.length;
     for (let i = 0; i < stepThreeLength; i++) {
         const name = evoStepThreeList[i];
@@ -205,17 +217,21 @@ function getNameListForCompare() {
     for (let i = 0; i < cachedIds.length; i++) {
         const id = cachedIds[i];
         const evoData = evoChainCach[id];
-        
-        if (evoData !== undefined) {
-            if (evoData.base && !evoBaseList.includes(evoData.base)) {
-                evoBaseList.push(evoData.base);
-            };
-            if (evoData.stepTwo && !evoStepTwoList.includes(evoData.stepTwo)) {
-                evoStepTwoList.push(evoData.stepTwo);
-            };
-            if (evoData.stepThree && !evoStepThreeList.includes(evoData.stepThree)) {
-                evoStepThreeList.push(evoData.stepThree);
-            };
+
+        createStepDataList(evoData);
+    };
+}
+
+function createStepDataList(evoData) {
+    if (evoData !== undefined) {
+        if (evoData.base && !evoBaseList.includes(evoData.base)) {
+            evoBaseList.push(evoData.base);
+        };
+        if (evoData.stepTwo && !evoStepTwoList.includes(evoData.stepTwo)) {
+            evoStepTwoList.push(evoData.stepTwo);
+        };
+        if (evoData.stepThree && !evoStepThreeList.includes(evoData.stepThree)) {
+            evoStepThreeList.push(evoData.stepThree);
         };
     };
 }
@@ -229,7 +245,6 @@ function showCreatureCard(start, end) {
 
 function getCreatureClassDataFromMemory(id, containerRef) {
     const displayClassRef = document.getElementById(containerRef);
-
     for (let i = 0; i < creatureCach[id].types.length; i++) {
         displayClassRef.innerHTML += renderCreatureClass(creatureCach[id].types[i].type.name);
     };
@@ -237,7 +252,7 @@ function getCreatureClassDataFromMemory(id, containerRef) {
 
 function closeDialog() {
     const dialogRef = document.getElementById('detailCard');
-    resetDialog(dialogRef)
+    resetDialog(dialogRef);
     dialogRef.close();
 }
 
@@ -249,9 +264,9 @@ function loadMoreCreatures() {
     } else {
         loadDataUntil = 1029;
         init();
-    }
+    };
 }
-// render dialog-detail informations
+
 function openDialog(id) {
     const creatureId = id.match(/\d+/g);
     dialogRef.innerHTML += renderDetailCard(creatureCach[creatureId]);
@@ -264,6 +279,9 @@ function openDialog(id) {
 }
 
 function setMainData() {
+    document.getElementById('btnMain').classList.add('active');
+    document.getElementById('btnStats').classList.remove('active');
+    document.getElementById('btnEvo').classList.remove('active');
     resetDetailData();
     loadMainData(getCreatureIdFromDialog());
 }
@@ -272,7 +290,6 @@ function loadMainData(id) {
     const height = creatureCach[id].height / 10;
     const weight = creatureCach[id].weight / 10;
     const baseExperience = creatureCach[id].base_experience;
-
     let displayDetailRef = document.getElementById(`detailInformation`);
     displayDetailRef.innerHTML += renderDetailMainInformation(height, weight, baseExperience);
     loadAbilities(id);
@@ -281,14 +298,17 @@ function loadMainData(id) {
 function loadAbilities(id) {
     for (let i = 0; i < creatureCach[id].abilities.length; i++) {
         if (i == creatureCach[id].abilities.length - 1) {
-            document.getElementById(`abilities`).innerHTML += creatureCach[id].abilities[i].ability.name
+            document.getElementById(`abilities`).innerHTML += creatureCach[id].abilities[i].ability.name;
         } else {
             document.getElementById(`abilities`).innerHTML += creatureCach[id].abilities[i].ability.name + `, `;
-        }
+        };
     };
 }
 
 function setStatsData() {
+    document.getElementById('btnMain').classList.remove('active');
+    document.getElementById('btnStats').classList.add('active');
+    document.getElementById('btnEvo').classList.remove('active');
     resetDetailData();
     const displayDetailRef = document.getElementById(`detailInformation`);
     displayDetailRef.innerHTML += renderDetailStatsInformation();
@@ -300,13 +320,15 @@ function loadStatsData(id) {
     for (let i = 0; i < creatureCach[id].stats.length; i++) {
         const name = creatureCach[id].stats[i].stat.name;
         const value = creatureCach[id].stats[i].base_stat;
-
         tableRef.innerHTML += renderSkillValues(name);
         getSkillClassValue(name, value);
     };
 }
 
 function setEvoChainData() {
+    document.getElementById('btnMain').classList.remove('active');
+    document.getElementById('btnStats').classList.remove('active');
+    document.getElementById('btnEvo').classList.add('active');
     const evoChainContainerRef = document.getElementById('detailInformation');
     resetDetailData();
     evoChainContainerRef.innerHTML += renderEvoChainContainer();
@@ -320,7 +342,6 @@ function getSkillClassValue(name, value) {
 
 function setEvoChainStep(i) {
     const evoChainContainerRef = document.getElementById('evoChainContainer');
-
     if (evoChainCach[i].base != '') {
         showEvoStepData(getCreatureIdFromMemoryCach(evoChainCach[i].base));
     };
@@ -338,15 +359,15 @@ function getCreatureIdFromMemoryCach(name) {
     let index = '';
     Object.values(creatureCach).forEach((creature, i) => {
         if (creature?.name === name) {
-            index = creature?.id
-        }
+            index = creature?.id;
+        };
     });
     return index;
 }
 
 function showEvoStepData(id) {
     const evoChainContainerRef = document.getElementById('evoChainContainer');
-    evoChainContainerRef.innerHTML += renderEVoChainStep(creatureCach, id)
+    evoChainContainerRef.innerHTML += renderEVoChainStep(creatureCach, id);
 }
 
 function resetDetailData() {
@@ -388,9 +409,8 @@ function hiddenNextBtn() {
     const btnNext = document.getElementById(`next`);
     if (parseFloat(getCreatureIdFromDialog()) == loadDataUntil) {
         btnNext.classList.add('hidden');
-    };;
+    };
 }
-
 
 function resetDialog(parentRef) {
     const cardRef = parentRef.children[0];

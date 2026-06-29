@@ -69,6 +69,10 @@ main {
     visibility: hidden !important;
 }
 
+.active {
+    border: 2px solid black !important;
+}
+
 .head {
     background-color: rgba(105, 118, 131, 0.842);
     border-bottom: 2px solid black;
@@ -479,12 +483,15 @@ dialog {
 
             width: 60%;
             bottom: 12px;
+
+            .mainValues {
+
+            }
         }
 
     }
 }
 
-/*  */
 .skillBar {
     background-color: rgba(224, 224, 224, 0.506);
     border-radius: 16px;
@@ -492,7 +499,6 @@ dialog {
 }
 
 .skillLevel {
-    /* background-color: #3498db; */
     width: 60px;
     height: 100%;
     border-radius: 8px;
