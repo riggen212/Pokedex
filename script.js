@@ -49,6 +49,8 @@ function searchCreature() {
     } else {
         foundedCreatureList = [];
         document.getElementById('cardContainer').innerHTML = '';
+        console.log(loadDataUntil);
+        
         showCreatureCard(1, loadDataUntil);
     };
 }
@@ -66,7 +68,6 @@ function showFoundedCreatrues(array) {
     } else {
         containerRef.innerHTML = `No Pokemone's founded! Please try agian`;
     };
-    loadDataUntil = foundedCreatureList[foundedCreatureList.length - 1].id;
 }
 
 function showLoadingScreen() {
