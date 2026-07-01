@@ -1,16 +1,17 @@
 let creatureStartId = 1;
 let loadDataUntil = 20;
-let currentSelectedCreature = "";
-let counter = 1;
+let currentSelectedCreature = '';
+let activeSearch = false;
+let foundedCreatureList = [];
 const creatureCach = {};
 const evoChainCach = [];
 const nameList = [];
 const evoBaseList = [];
 const evoStepTwoList = [];
 const evoStepThreeList = [];
-
 const loadingText = document.getElementById('loadingText');
 const dialogRef = document.getElementById(`detailCard`);
+const loadingDialog = document.getElementById('loading');
 
 dialogRef.addEventListener('cancel', (event) => {
     dialogRef.innerHTML = '';
@@ -22,8 +23,6 @@ dialogRef.addEventListener('click', (event) => {
         dialogRef.innerHTML = '';
     };
 });
-
-const loadingDialog = document.getElementById('loading');
 
 loadingDialog.addEventListener('cancel', (event) => {
     event.preventDefault();
@@ -41,19 +40,15 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function searchCreature() {
-    const searchInput = document.getElementById(`searchField`);
-    let text = searchInput.value.toLowerCase().trim();
-    let items = Object.values(creatureCach).map(data => data?.name);
-    if (text.length >= 3) {
-        const foundedCreatures = items.filter(item => {
-            if (!item) return false;
-            const matches = item.toLowerCase().includes(text);
-            return matches;
-        });
-        showFoundedCreatrues(foundedCreatures);
-    }
-    if (text.length < 3) {
-        document.getElementById(`cardContainer`).innerHTML = '';
+    const text = document.getElementById('searchField').value.toLowerCase().trim();
+    const items = Object.values(creatureCach).map(data => data?.name);
+    activeSearch = text.length >= 3;
+    if (activeSearch) {
+        const founded = items.filter(item => item && item.toLowerCase().includes(text));
+        showFoundedCreatrues(founded);
+    } else {
+        foundedCreatureList = [];
+        document.getElementById('cardContainer').innerHTML = '';
         showCreatureCard(1, loadDataUntil);
     };
 }
@@ -63,13 +58,15 @@ function showFoundedCreatrues(array) {
     containerRef.innerHTML = '';
     if (array.length != 0) {
         for (let i = 0; i < array.length; i++) {
+            foundedCreatureList[getCreatureIdFromMemoryCach(array[i])] = creatureCach[getCreatureIdFromMemoryCach(array[i])];
             containerRef.innerHTML += renderCreatureCard(getCreatureIdFromMemoryCach(array[i]),
                 creatureCach[getCreatureIdFromMemoryCach(array[i])]);
             getCreatureClassDataFromMemory(getCreatureIdFromMemoryCach(array[i]), `creatureClass${getCreatureIdFromMemoryCach(array[i])}`);
         };
     } else {
-        containerRef.innerHTML = `No Pokemone's founded! Please try agian`
+        containerRef.innerHTML = `No Pokemone's founded! Please try agian`;
     };
+    loadDataUntil = foundedCreatureList[foundedCreatureList.length - 1].id;
 }
 
 function showLoadingScreen() {
@@ -93,10 +90,8 @@ async function init() {
     for (let i = creatureStartId; i <= loadDataUntil; i++) {
         updateLoadingScreen(i, creatureStartId, loadDataUntil);
         await loadCreatureDataFromApi(i, '');
-        await loadEvoChainDataFromApi(creatureCach[i].name, i);
     };
     closeLoadingScreen();
-    compareEvoDataWithCreatureMemory();
     showCreatureCard(creatureStartId, loadDataUntil);
 }
 
@@ -152,22 +147,17 @@ async function loadEvoChainDataFromApi(name, i) {
 }
 
 async function saveEvoSteps(response, i) {
-    let base = '';
-    let stepTwo = '';
-    let stepThree = '';
     const mainData = await response.json();
-    const evoChainDataResponse = await fetch(`${mainData.evolution_chain.url}`);
-    const evoChain = await evoChainDataResponse.json();
-    if (evoChain.chain.species !== undefined) {
-        base = evoChain.chain.species.name;
-        if (evoChain.chain.evolves_to[0] !== undefined) {
-            stepTwo = evoChain.chain.evolves_to[0].species.name;
-            if (evoChain.chain.evolves_to[0].evolves_to[0] !== undefined) {
-                stepThree = evoChain.chain.evolves_to[0].evolves_to[0].species.name;
-            };
-        };
+    const evoResponse = await fetch(mainData.evolution_chain.url);
+    let currentStep = (await evoResponse.json()).chain;
+    const evoSteps = [];
+    while (currentStep) {
+        const name = currentStep.species.name;
+        evoSteps.push(name);
+        await ensureCreatureInMemory(name);
+        currentStep = currentStep.evolves_to[0];
     };
-    saveEvoDataInCach(i, base, stepTwo, stepThree);
+    saveEvoDataInCach(i, evoSteps[0] || '', evoSteps[1] || '', evoSteps[2] || '');
 }
 
 function saveEvoDataInCach(i, base, stepTwo, stepThree) {
@@ -175,50 +165,11 @@ function saveEvoDataInCach(i, base, stepTwo, stepThree) {
     evoChainCach[i] = data;
 }
 
-async function compareEvoDataWithCreatureMemory() {
-    getNameListForCompare();
-    await compareBase();
-    await compareStepTwo();
-    await compareStepThree();
-}
-
-async function compareBase() {
-    const baseLength = evoBaseList.length;
-    for (let i = 0; i < baseLength; i++) {
-        const name = evoBaseList[i];
-        if (name && searchCreatureInMemory(name) === false) {
-            await loadCreatureDataFromApi(0, name);
-        };
-    };
-}
-
-async function compareStepTwo() {
-    const stepTwoLength = evoStepTwoList.length;
-    for (let i = 0; i < stepTwoLength; i++) {
-        const name = evoStepTwoList[i];
-        if (name && searchCreatureInMemory(name) === false) {
-            await loadCreatureDataFromApi(0, name);
-        };
-    };
-}
-
-async function compareStepThree() {
-    const stepThreeLength = evoStepThreeList.length;
-    for (let i = 0; i < stepThreeLength; i++) {
-        const name = evoStepThreeList[i];
-        if (name && searchCreatureInMemory(name) === false) {
-            await loadCreatureDataFromApi(0, name);
-        };
-    };
-}
-
-function getNameListForCompare() {
-    const cachedIds = Object.keys(evoChainCach);
-    for (let i = 0; i < cachedIds.length; i++) {
-        const id = cachedIds[i];
-        const evoData = evoChainCach[id];
-
-        createStepDataList(evoData);
+async function ensureCreatureInMemory(name) {
+    if (!name) return;
+    const exists = Object.values(creatureCach).some(c => c && c.name === name);
+    if (!exists) {
+        await loadCreatureDataFromApi(0, name);
     };
 }
 
@@ -267,15 +218,18 @@ function loadMoreCreatures() {
     };
 }
 
-function openDialog(id) {
-    const creatureId = id.match(/\d+/g);
-    dialogRef.innerHTML += renderDetailCard(creatureCach[creatureId]);
-    getCreatureClassDataFromMemory(creatureId, `detailCardClass`);
-    loadMainData(getCreatureIdFromDialog());
-    currentSelectedCreature = creatureId;
-    dialogRef.showModal();
-    hiddenPrevBtn();
-    hiddenNextBtn();
+async function openDialog(id) {
+    const matches = id.match(/\d+/);
+    if (!matches) return;
+    currentSelectedCreature = parseInt(matches);
+
+    dialogRef.innerHTML = renderDetailCard(creatureCach[currentSelectedCreature]);
+    getCreatureClassDataFromMemory(currentSelectedCreature, `detailCardClass`);
+    setMainData(); dialogRef.showModal();
+    hiddenPrevBtn(); hiddenNextBtn();
+
+    await loadEvoChainDataFromApi(creatureCach[currentSelectedCreature].name, currentSelectedCreature);
+    if (document.getElementById('btnMain').classList.contains('active')) setMainData();
 }
 
 function setMainData() {
@@ -371,45 +325,83 @@ function showEvoStepData(id) {
 }
 
 function resetDetailData() {
-    document.getElementById(`detailInformation`).children[0].remove();
+    const container = document.getElementById('detailInformation');
+    if (container) container.innerHTML = '';
 }
 
-function previousCreature() {
-    if (currentSelectedCreature > 1) {
+function getMinCreatureIndex(cache) {
+    const indices = Object.keys(cache).map(Number).filter(i => cache[i] !== undefined && cache[i] !== null);
+    return indices.length > 0 ? Math.min(...indices) : 1;
+}
+
+async function previousCreature() {
+    if (!activeSearch && creatureCach[currentSelectedCreature - 1]) {
         currentSelectedCreature--;
-        const dialogRef = document.getElementById(`detailCard`);
-        resetDialog(dialogRef);
-        dialogRef.innerHTML += renderDetailCard(creatureCach[currentSelectedCreature]);
-        getCreatureClassDataFromMemory(currentSelectedCreature, `detailCardClass`);
-        loadMainData(getCreatureIdFromDialog());
+        loadPrevios(creatureCach, currentSelectedCreature);
     };
-    hiddenPrevBtn();
-}
-
-function nextCreature() {
-    if (currentSelectedCreature < loadDataUntil) {
-        const dialogRef = document.getElementById(`detailCard`);
-        currentSelectedCreature++;
-        resetDialog(dialogRef);
-        dialogRef.innerHTML += renderDetailCard(creatureCach[currentSelectedCreature]);
-        getCreatureClassDataFromMemory(currentSelectedCreature, `detailCardClass`);
-        loadMainData(getCreatureIdFromDialog());
+    if (activeSearch && foundedCreatureList[currentSelectedCreature - 1]) {
+        currentSelectedCreature--;
+        loadPrevios(foundedCreatureList, currentSelectedCreature);
     };
     hiddenNextBtn();
+    hiddenPrevBtn();
+    await loadEvoChainDataFromApi(creatureCach[currentSelectedCreature].name, currentSelectedCreature);
+}
+
+function loadPrevios(cache, currentSelectedCreature) {
+    const dialogRef = document.getElementById(`detailCard`);
+    resetDialog(dialogRef);
+    dialogRef.innerHTML += renderDetailCard(cache[currentSelectedCreature]);
+    getCreatureClassDataFromMemory(currentSelectedCreature, `detailCardClass`);
+    loadMainData(getCreatureIdFromDialog());
+}
+
+async function nextCreature() {
+    if (!activeSearch && creatureCach[currentSelectedCreature + 1]) {
+        currentSelectedCreature++;
+        loadNext(creatureCach, currentSelectedCreature);
+    };
+    if (activeSearch && foundedCreatureList[currentSelectedCreature + 1]) {
+        currentSelectedCreature++;
+        loadNext(foundedCreatureList, currentSelectedCreature);
+    };
+    hiddenNextBtn();
+    hiddenPrevBtn();
+    await loadEvoChainDataFromApi(creatureCach[currentSelectedCreature].name, currentSelectedCreature);
+}
+
+function loadNext(cache, currentSelectedCreature) {
+    const dialogRef = document.getElementById(`detailCard`);
+    resetDialog(dialogRef);
+    dialogRef.innerHTML += renderDetailCard(cache[currentSelectedCreature]);
+    getCreatureClassDataFromMemory(currentSelectedCreature, `detailCardClass`);
+    loadMainData(getCreatureIdFromDialog());
 }
 
 function hiddenPrevBtn() {
-    const btnPref = document.getElementById(`prev`);
-    if (parseFloat(getCreatureIdFromDialog()) == 1) {
+    const btnPref = document.getElementById('prev');
+    if (!activeSearch && currentSelectedCreature === 1) {
         btnPref.classList.add('hidden');
+        return;
     };
+    if (activeSearch && !foundedCreatureList[currentSelectedCreature - 1]) {
+        btnPref.classList.add('hidden');
+        return;
+    };
+    btnPref.classList.remove('hidden');
 }
 
 function hiddenNextBtn() {
-    const btnNext = document.getElementById(`next`);
-    if (parseFloat(getCreatureIdFromDialog()) == loadDataUntil) {
+    const btnNext = document.getElementById('next');
+    if (!activeSearch && !creatureCach[currentSelectedCreature + 1]) {
         btnNext.classList.add('hidden');
+        return;
     };
+    if (activeSearch && !foundedCreatureList[currentSelectedCreature + 1]) {
+        btnNext.classList.add('hidden');
+        return;
+    };
+    btnNext.classList.remove('hidden');
 }
 
 function resetDialog(parentRef) {
